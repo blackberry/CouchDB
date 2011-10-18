@@ -6,9 +6,9 @@ set -e
 
 source bbndk.env
 
-export BUILD_ROOT=`pwd`
+BUILD_ROOT=`pwd`
 pushd ../..
-export SRC_TOP=`pwd`
+SRC_TOP=`pwd`
 popd
 
 if [ ! -d "build" ]; then
@@ -26,8 +26,8 @@ fi
 
 popd
 
-export LINUX_BUILD=$BUILD_ROOT/build/linux
-export PLAYBOOK_PREFIX=$BUILD_ROOT/build/PlayBook
+LINUX_BUILD=$BUILD_ROOT/build/linux
+PLAYBOOK_PREFIX=$BUILD_ROOT/build/PlayBook
 
 
 ###########################################################################
@@ -96,10 +96,6 @@ export PLAYBOOK_PREFIX=$BUILD_ROOT/build/PlayBook
 #pushd $SRC_TOP/SpiderMonkey/PlayBook-build
 #./build.sh
 #
-## Make link to header files needed for compiling CouchDB
-#mkdir -p $BUILD_ROOT/include/SpiderMonkey
-#ln -s $SRC_TOP/SpiderMonkey/js/src $BUILD_ROOT/include/SpiderMonkey/js
-#
 #popd
 ###########################################################################
 # Setup PlayBook Environment Variables                                    #
@@ -125,18 +121,46 @@ export RANLIB="$BBNDK_HOST/usr/bin/ntoarmv7-ranlib "
 # Build CouchDB 1.1.0                                                     #   
 ###########################################################################
 echo "==> Building CouchDB"
-#Paths to Linux binaries
-export ERL_DIR=$SRC_TOP/Erlang-OTP/bootstrap/bin
-export ERL=$ERL_DIR/erl
-export ERLC=$ERL_DIR/erlc
 
-#Paths to ARM binaries
-#export ERL=$PLAYBOOK_PREFIX/Erlang-OTP/bin
-#export ERLC=$ERL
+# Make link to SpiderMonkey header files
+mkdir -p $BUILD_ROOT/include/SpiderMonkey
+if [ -e $BUILD_ROOT/include/SpiderMonkey/js ] ; then
+    rm -f $BUILD_ROOT/include/SpiderMonkey/js
+fi
+ln -s $SRC_TOP/SpiderMonkey/js/src $BUILD_ROOT/include/SpiderMonkey/js
+
+#Paths to Linux binaries
+ERL_DIR=$SRC_TOP/Erlang-OTP
+ERL_BIN_DIR=$ERL_DIR/bootstrap/bin
+export ERL=$ERL_BIN_DIR/erl
+export ERLC=$ERL_BIN_DIR/erlc
+# Disable errors when compiling Erlang test files
+export ERLC_FLAGS="-DNOTEST -DEUNIT_NOAUTO -I$ERL_DIR/lib"
 
 pushd $SRC_TOP/CouchDB
+
+./bootstrap
+
+# Use script modified for PlayBook 
+cp configure.chung configure
+
 ./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$PLAYBOOK_PREFIX/CouchDB \
---with-erlang=$SRC_TOP/Erlang-OTP/PlayBook-build/build/PlayBook/Erlang/usr/include --with-js-lib=$SRC_TOP/SpiderMonkey/PlayBook-build/build/PlayBook/lib \
+--with-erlang=$ERL_DIR/PlayBook-build/build/PlayBook/Erlang/usr/include \
+--with-erlc-flags= $ERL_DIR/PlayBook-build/build/PlayBook/Erlang/usr/include \
+--with-js-lib=$SRC_TOP/SpiderMonkey/PlayBook-build/build/PlayBook/lib \
 --with-js-include=$BUILD_ROOT/include/SpiderMonkey/js
 make
+make install
+popd
+
+# Fix paths in couchdb script
+pushd build/PlayBook/CouchDB/bin
+cat couchdb | sed -e "s|$PLAYBOOK_PREFIX|\$INSTALL_PREFIX|" -e "s|$ERL_DIR/bootstrap|\$ERLANG_DIR|" > couchdb.tmp
+
+# Insert defaults for install prefix and Erlang dirs
+echo "INSTALL_PREFIX=/root" > couchdb
+echo "ERLANG_DIR=/root/Erlang" >> couchdb
+
+cat couchdb.tmp >> couchdb
+rm couchdb.tmp
 popd
