@@ -137,6 +137,17 @@ export ERLC=$ERL_BIN_DIR/erlc
 # Disable errors when compiling Erlang test files
 export ERLC_FLAGS="-DNOTEST -DEUNIT_NOAUTO -I$ERL_DIR/lib"
 
+fix_paths()
+{
+    FILE_DIR=`dirname $1`
+    FILE_NAME=`basename $1`
+
+    pushd $FILE_DIR
+    cat $FILE_NAME | sed -e "s|$PLAYBOOK_PREFIX|/root|g" -e "s|$ERL_DIR/bootstrap|/root/Erlang|g" > $FILE_NAME.tmp
+    mv $FILE_NAME.tmp $FILE_NAME
+    popd
+}
+
 pushd $SRC_TOP/CouchDB
 
 ./bootstrap
@@ -155,7 +166,7 @@ popd
 
 # Fix paths in couchdb script
 pushd build/PlayBook/CouchDB/bin
-cat couchdb | sed -e "s|$PLAYBOOK_PREFIX|\$INSTALL_PREFIX|" -e "s|$ERL_DIR/bootstrap|\$ERLANG_DIR|" > couchdb.tmp
+cat couchdb | sed -e "s|$PLAYBOOK_PREFIX|\$INSTALL_PREFIX|g" -e "s|$ERL_DIR/bootstrap|\$ERLANG_DIR|g" > couchdb.tmp
 
 # Insert defaults for install prefix and Erlang dirs
 echo "INSTALL_PREFIX=/root" > couchdb
@@ -164,3 +175,15 @@ echo "ERLANG_DIR=/root/Erlang" >> couchdb
 cat couchdb.tmp >> couchdb
 rm couchdb.tmp
 popd
+
+pushd build/PlayBook/CouchDB
+fix_paths ./bin/couchjs
+fix_paths ./etc/couchdb/default.ini
+fix_paths ./etc/logrotate.d/couchdb
+fix_paths ./etc/init.d/couchdb
+fix_paths ./lib/couchdb/bin/couchjs
+fix_paths ./lib/couchdb/erlang/lib/couch-1.1.0/ebin/couch.app
+
+chmod +x ./lib/couchdb/bin/couchjs
+popd
+
