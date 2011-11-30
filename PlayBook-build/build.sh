@@ -189,5 +189,6 @@ cat ./bin/couchdb | sed -e 's| +K true||' > ./bin/couchdb.tmp
 mv ./bin/couchdb.tmp ./bin/couchdb
 
 chmod +x ./lib/couchdb/bin/couchjs
+chmod +x ./bin/couchjs
 popd
 
