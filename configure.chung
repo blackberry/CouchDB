@@ -12027,12 +12027,19 @@ if test `echo $version | ${AWK} "{print \\$2}"` -eq 6; then
         as_fn_error $? "$erlang_version_error" "$LINENO" 5
     fi
 fi
-#chung: debug
-#has_crypto=`${ERL} -eval "case application:load(crypto) of ok -> ok; _ -> exit(no_crypto) end." -noshell -s init stop`
 
-#if test -n "$has_crypto"; then
-#    as_fn_error $? "Could not find the Erlang crypto library. Has Erlang been compiled with OpenSSL support?" "$LINENO" 5
-#fi
+# Skip check when cross-compiling for QNX, since the Erlang bootstrap isn't built with SSL support
+case $host_os in
+*nto* | *qnx*)
+  ;;
+*)
+  has_crypto=`${ERL} -eval "case application:load(crypto) of ok -> ok; _ -> exit(no_crypto) end." -noshell -s init stop`
+
+  if test -n "$has_crypto"; then
+      as_fn_error $? "Could not find the Erlang crypto library. Has Erlang been compiled with OpenSSL support?" "$LINENO" 5
+  fi
+  ;;
+esac
 
 # Extract the first word of "erlc", so it can be a program name with args.
 set dummy erlc; ac_word=$2
