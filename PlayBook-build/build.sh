@@ -153,7 +153,7 @@ pushd $SRC_TOP/CouchDB
 ./bootstrap
 
 # Use script modified for PlayBook 
-cp configure.chung configure
+cp configure.PlayBook configure
 
 ./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$PLAYBOOK_PREFIX/CouchDB \
 --with-erlang=$ERL_DIR/PlayBook-build/build/PlayBook/Erlang/usr/include \
