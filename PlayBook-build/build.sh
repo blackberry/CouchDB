@@ -184,6 +184,10 @@ fix_paths ./etc/init.d/couchdb
 fix_paths ./lib/couchdb/bin/couchjs
 fix_paths ./lib/couchdb/erlang/lib/couch-1.1.0/ebin/couch.app
 
+# Remove kernel poll option from startup script 
+cat ./bin/couchdb | sed -e 's| +K true||' > ./bin/couchdb.tmp
+mv ./bin/couchdb.tmp ./bin/couchdb
+
 chmod +x ./lib/couchdb/bin/couchjs
 popd
 
