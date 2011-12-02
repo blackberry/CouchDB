@@ -36,8 +36,8 @@ chmod +x ./bin/couchdb
 
 # Setup Erlang
 cd $PREFIX/Erlang
-if [ -f bin/run_tests ] ; then
-	rm -f bin/run_tests
+if [ -f bin/run_test ] ; then
+	rm -f bin/run_test
 fi
 ./Install -minimal $PREFIX/Erlang
 
