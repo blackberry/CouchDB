@@ -74,8 +74,19 @@ make
 popd
 
 ###########################################################################
-# Build CouchDB 1.1.0                                                     #   
+# Build gzip (optional)                                                   #
 ###########################################################################
+#echo "==> Building gzip"
+#pushd $SRC_TOP/gzip
+#if [ ! -f ./Makefile ] ; then
+#    ./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$BUILD_ROOT/gzip
+#fi
+#make
+#popd
+
+############################################################################
+# Build CouchDB 1.1.0                                                      #   
+############################################################################
 echo "==> Building CouchDB"
 
 # Make link to SpiderMonkey header files
@@ -109,6 +120,10 @@ make
 make install
 popd
 
+############################################################################
+# Build installer                                                          #   
+############################################################################
+echo "==> Building installer"
 pushd CouchDB
 # Remove kernel poll option from startup script 
 cat ./bin/couchdb | sed -e 's| +K true||' > ./bin/couchdb.tmp
@@ -131,6 +146,9 @@ TAR_FILE=$BUILD_ROOT/couchdb-installer.tar
 if [ -f $TAR_FILE ] ; then
     rm $TAR_FILE
 fi
+if [ -f ${TAR_FILE}.gz ] ; then
+    rm ${TAR_FILE}.gz
+fi
 pushd CouchDB/PlayBook-build
 tar cf $TAR_FILE install-vars.sh install.sh
 popd
@@ -151,8 +169,9 @@ fi
 cp $SRC_TOP/SpiderMonkey/PlayBook-build/lib/* lib/
 cp $SRC_TOP/getopt/getopt bin/
 tar rf $TAR_FILE lib bin
+gzip $TAR_FILE 
 popd
 
-echo "CouchDB installer $TAR_FILE created. Copy and untar to desired directory on the PlayBook and run install.sh"
+echo "CouchDB installer ${TAR_FILE}.gz created. Copy and untar to desired directory on the PlayBook and run install.sh"
 
 popd
