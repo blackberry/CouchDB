@@ -30,7 +30,7 @@ popd
 ###########################################################################
 echo "==> Building SpiderMonkey"
 pushd $SRC_TOP/SpiderMonkey/PlayBook-build
-./build.sh debug
+./build.sh
 
 popd
 
