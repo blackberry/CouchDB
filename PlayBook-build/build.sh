@@ -31,7 +31,6 @@ popd
 echo "==> Building SpiderMonkey"
 pushd $SRC_TOP/SpiderMonkey/PlayBook-build
 ./build.sh
-
 popd
 
 ###########################################################################
@@ -54,13 +53,15 @@ export CPPFLAGS="-D__QNXNTO__ -I$BBNDK_TARGET/usr/include"
 export LD="$BBNDK_HOST/usr/bin/ntoarmv7-ld "
 export RANLIB="$BBNDK_HOST/usr/bin/ntoarmv7-ranlib "
 
-###########################################################################
+############################################################################
 # Build gettext                                                           #
 ###########################################################################
 echo "==> Building gettext"
 pushd $SRC_TOP/gettext
-./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$BUILD_ROOT/gettext \
---with-libiconv-prefix=$QNX_TARGET/armle-v7/usr/lib --with-libintl-prefix=$QNX_TARGET/armle-v7/usr/lib
+if [ ! -f Makefile ] ; then
+    ./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$BUILD_ROOT/gettext \
+    --with-libiconv-prefix=$QNX_TARGET/armle-v7/usr/lib --with-libintl-prefix=$QNX_TARGET/armle-v7/usr/lib
+fi
 make
 popd
 
@@ -106,16 +107,20 @@ export ERLC=$ERL_BIN_DIR/erlc
 export ERLC_FLAGS="-DNOTEST -DEUNIT_NOAUTO -I$ERL_DIR/lib"
 
 pushd $SRC_TOP/CouchDB
-./bootstrap
+if [ ! -f ./configure ] ; then
+    ./bootstrap
 
-# Use script modified for PlayBook 
-cp configure.PlayBook configure
+    # Use script modified for PlayBook 
+    cp configure.PlayBook configure
+fi
 
-./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$BUILD_ROOT/CouchDB \
---with-erlang=$ERL_DIR/PlayBook-build/Erlang/usr/include \
---with-erlc-flags= $ERL_DIR/PlayBook-build/Erlang/usr/include \
---with-js-lib=$SRC_TOP/SpiderMonkey/PlayBook-build/lib \
---with-js-include=$BUILD_ROOT/include/SpiderMonkey/js
+if [ ! -f ./Makefile ] ; then
+    ./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$BUILD_ROOT/CouchDB \
+    --with-erlang=$ERL_DIR/PlayBook-build/Erlang/usr/include \
+    --with-erlc-flags= $ERL_DIR/PlayBook-build/Erlang/usr/include \
+    --with-js-lib=$SRC_TOP/SpiderMonkey/PlayBook-build/lib \
+    --with-js-include=$BUILD_ROOT/include/SpiderMonkey/js
+fi
 make
 make install
 popd
