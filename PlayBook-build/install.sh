@@ -49,7 +49,10 @@ cp libjs.so libmozjs.so /usr/lib
 cd $PREFIX/bin
 cp getopt /usr/bin
 
-# Start CouchDB
-cd $PREFIX/CouchDB/bin
+# Clean up
+cd $PREFIX
+rm -rf lib bin
+rm install-vars.sh install.sh
+
+# Ready to start CouchDB
 echo "Start CouchDB in $PREFIX/CouchDB/bin by running \"./couchdb\"."
-#PATH=$PATH:$PREFIX/Erlang/erts-5.8.4/bin ./couchdb # Set path to inet_gethost
