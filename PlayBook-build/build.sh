@@ -92,7 +92,7 @@ echo "==> Building CouchDB"
 
 # Make link to SpiderMonkey header files
 mkdir -p $BUILD_ROOT/include/SpiderMonkey
-if [ -e $BUILD_ROOT/include/SpiderMonkey/js ] ; then
+if [ -L $BUILD_ROOT/include/SpiderMonkey/js ] ; then
     rm -f $BUILD_ROOT/include/SpiderMonkey/js
 fi
 ln -s $SRC_TOP/SpiderMonkey/js/src $BUILD_ROOT/include/SpiderMonkey/js
