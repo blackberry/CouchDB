@@ -222,9 +222,17 @@ start_couchdb () {
         touch $PID_FILE
         interactive_option="+Bd -noinput"
     fi
+
+    # inet_gethost isn't found if ERL_LIBS is defined
     command="%ERL% $interactive_option $ERL_START_OPTIONS \
-        -env ERL_LIBS %localerlanglibdir% -couch_ini $start_arguments -s couch"
-    if test "$BACKGROUND" = "true" -a "$RECURSED" = "false"; then
+        -pa %localerlanglibdir%/ibrowse-2.2.0/ebin \
+        %localerlanglibdir%/mochiweb-7c2bc2/ebin \
+        %localerlanglibdir%/etap/ebin \
+        %localerlanglibdir%/erlang-oauth/ebin \
+        %localerlanglibdir%/couch-1.1.0/ebin \
+         -couch_ini $start_arguments -s couch"
+#        -env ERL_LIBS %localerlanglibdir% -couch_ini $start_arguments -s couch"
+if test "$BACKGROUND" = "true" -a "$RECURSED" = "false"; then
         $0 $background_start_arguments -b -r $RESPAWN_TIMEOUT -p $PID_FILE \
             -o $STDOUT_FILE -e $STDERR_FILE -R &
         echo "Apache CouchDB has started, time to relax."
