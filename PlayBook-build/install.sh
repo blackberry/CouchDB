@@ -20,6 +20,9 @@ fix_paths()
     cd $CURDIR
 }
 
+# Set ownership
+chown -R root:nto bin lib CouchDB Erlang install.sh install-vars.sh
+
 # Fix scripts
 cd $PREFIX/CouchDB
 fix_paths ./bin/couchdb
