@@ -30,8 +30,7 @@ popd
 ###########################################################################
 echo "==> Building SpiderMonkey"
 pushd $SRC_TOP/SpiderMonkey/PlayBook-build
-./build.sh debug
-
+./build.sh
 popd
 
 ###########################################################################
@@ -54,13 +53,15 @@ export CPPFLAGS="-D__QNXNTO__ -I$BBNDK_TARGET/usr/include"
 export LD="$BBNDK_HOST/usr/bin/ntoarmv7-ld "
 export RANLIB="$BBNDK_HOST/usr/bin/ntoarmv7-ranlib "
 
-###########################################################################
+############################################################################
 # Build gettext                                                           #
 ###########################################################################
 echo "==> Building gettext"
 pushd $SRC_TOP/gettext
-./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$BUILD_ROOT/gettext \
---with-libiconv-prefix=$QNX_TARGET/armle-v7/usr/lib --with-libintl-prefix=$QNX_TARGET/armle-v7/usr/lib
+if [ ! -f Makefile ] ; then
+    ./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$BUILD_ROOT/gettext \
+    --with-libiconv-prefix=$QNX_TARGET/armle-v7/usr/lib --with-libintl-prefix=$QNX_TARGET/armle-v7/usr/lib
+fi
 make
 popd
 
@@ -74,8 +75,19 @@ make
 popd
 
 ###########################################################################
-# Build CouchDB 1.1.0                                                     #   
+# Build gzip (optional)                                                   #
 ###########################################################################
+#echo "==> Building gzip"
+#pushd $SRC_TOP/gzip
+#if [ ! -f ./Makefile ] ; then
+#    ./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$BUILD_ROOT/gzip
+#fi
+#make
+#popd
+
+############################################################################
+# Build CouchDB 1.1.0                                                      #   
+############################################################################
 echo "==> Building CouchDB"
 
 # Make link to SpiderMonkey header files
@@ -95,20 +107,28 @@ export ERLC=$ERL_BIN_DIR/erlc
 export ERLC_FLAGS="-DNOTEST -DEUNIT_NOAUTO -I$ERL_DIR/lib"
 
 pushd $SRC_TOP/CouchDB
-./bootstrap
+if [ ! -f ./configure ] ; then
+    ./bootstrap
 
-# Use script modified for PlayBook 
-cp configure.PlayBook configure
+    # Use script modified for PlayBook 
+    cp configure.PlayBook configure
+fi
 
-./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$BUILD_ROOT/CouchDB \
---with-erlang=$ERL_DIR/PlayBook-build/Erlang/usr/include \
---with-erlc-flags= $ERL_DIR/PlayBook-build/Erlang/usr/include \
---with-js-lib=$SRC_TOP/SpiderMonkey/PlayBook-build/lib \
---with-js-include=$BUILD_ROOT/include/SpiderMonkey/js
+if [ ! -f ./Makefile ] ; then
+    ./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$BUILD_ROOT/CouchDB \
+    --with-erlang=$ERL_DIR/PlayBook-build/Erlang/usr/include \
+    --with-erlc-flags= $ERL_DIR/PlayBook-build/Erlang/usr/include \
+    --with-js-lib=$SRC_TOP/SpiderMonkey/PlayBook-build/lib \
+    --with-js-include=$BUILD_ROOT/include/SpiderMonkey/js
+fi
 make
 make install
 popd
 
+############################################################################
+# Build installer                                                          #   
+############################################################################
+echo "==> Building installer"
 pushd CouchDB
 # Remove kernel poll option from startup script 
 cat ./bin/couchdb | sed -e 's| +K true||' > ./bin/couchdb.tmp
@@ -131,6 +151,9 @@ TAR_FILE=$BUILD_ROOT/couchdb-installer.tar
 if [ -f $TAR_FILE ] ; then
     rm $TAR_FILE
 fi
+if [ -f ${TAR_FILE}.gz ] ; then
+    rm ${TAR_FILE}.gz
+fi
 pushd CouchDB/PlayBook-build
 tar cf $TAR_FILE install-vars.sh install.sh
 popd
@@ -151,8 +174,9 @@ fi
 cp $SRC_TOP/SpiderMonkey/PlayBook-build/lib/* lib/
 cp $SRC_TOP/getopt/getopt bin/
 tar rf $TAR_FILE lib bin
+gzip $TAR_FILE 
 popd
 
-echo "CouchDB installer $TAR_FILE created. Copy and untar to desired directory on the PlayBook and run install.sh"
+echo "CouchDB installer ${TAR_FILE}.gz created. Copy and untar to desired directory on the PlayBook and run install.sh"
 
 popd
