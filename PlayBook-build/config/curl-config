@@ -21,9 +21,9 @@
 #
 ###########################################################################
 
-prefix=${BBNDK_TARGET}/armle-v7/usr
+prefix=${QNX_TARGET}/armle-v7/usr
 exec_prefix=${prefix}
-includedir=${BBNDK_TARGET}/usr/include/curl
+includedir=${QNX_TARGET}/usr/include/curl
 
 usage()
 {
