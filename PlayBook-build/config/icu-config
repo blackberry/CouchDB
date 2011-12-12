@@ -47,7 +47,7 @@ loaddefs()
 # etc.  If ICU is not installed in this directory, you must change the
 # following line.  There should exist ${prefix}/include/unicode/utypes.h
 # for example.
-default_prefix="${BBNDK_TARGET}/armle-v7/usr"
+default_prefix="${QNX_TARGET}/armle-v7/usr"
 if [ "x${prefix}" = "x" ]; then prefix="$default_prefix"; fi
 exec_prefix="${prefix}"
 libdir="${exec_prefix}/lib"
@@ -197,10 +197,10 @@ platform="U_LINUX"
 AR="ar"
 # initial tab keeps it out of the shell version.
 ARFLAGS=" ${ARFLAGS}"
-CC="$BBNDK_HOST/usr/bin/qcc -V4.4.2,gcc_ntoarmv7le_cpp "
+CC="$QNX_HOST/usr/bin/qcc -V4.4.2,gcc_ntoarmv7le_cpp "
 CFLAGS="-O2 -Wall -ansi -pedantic -Wshadow -Wpointer-arith -Wmissing-prototypes -Wwrite-strings -Wno-long-long ${THREADSCFLAGS} "
-CPP="$BBNDK_HOST/usr/bin/qcc -V4.4.2,gcc_ntoarmv7le_cpp -E"
-includedir="${BBNDK_TARGET}/usr/include"
+CPP="$QNX_HOST/usr/bin/qcc -V4.4.2,gcc_ntoarmv7le_cpp -E"
+includedir="${QNX_TARGET}/usr/include"
 CPPFLAGS="${THREADSCPPFLAGS} ${LIBCPPFLAGS} -I${includedir}"
 CXX=$CPP
 CXXFLAGS="-O2 -W -Wall -ansi -pedantic -Wpointer-arith -Wwrite-strings -Wno-long-long ${THREADSCXXFLAGS} "
