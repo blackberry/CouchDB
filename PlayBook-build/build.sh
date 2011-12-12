@@ -69,7 +69,7 @@ popd
 # Build getopt                                                            #
 ###########################################################################
 echo "==> Building getopt"
-pushd $SRC_TOP/getopt
+pushd $SRC_TOP/GetOpt
 CPPFLAGS="$CPPFLAGS -D__QNXNTO__ -I$BBNDK_TARGET/usr/include -I$SRC_TOP/gettext/gettext-tools/intl" \
 make
 popd
@@ -172,7 +172,7 @@ if [ ! -d bin ] ; then
     mkdir bin
 fi
 cp $SRC_TOP/SpiderMonkey/PlayBook-build/lib/* lib/
-cp $SRC_TOP/getopt/getopt bin/
+cp $SRC_TOP/GetOpt/getopt bin/
 tar rf $TAR_FILE lib bin
 gzip $TAR_FILE 
 popd
