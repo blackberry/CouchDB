@@ -75,15 +75,15 @@ make
 popd
 
 ###########################################################################
-# Build gzip (optional)                                                   #
+# Build gzip
 ###########################################################################
-#echo "==> Building gzip"
-#pushd $SRC_TOP/gzip
-#if [ ! -f ./Makefile ] ; then
-#    ./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$BUILD_ROOT/gzip
-#fi
-#make
-#popd
+echo "==> Building gzip"
+pushd $SRC_TOP/gzip
+if [ ! -f ./Makefile ] ; then
+    ./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$BUILD_ROOT/gzip
+fi
+make
+popd
 
 ############################################################################
 # Build CouchDB 1.1.0                                                      #   
