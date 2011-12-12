@@ -4,8 +4,6 @@
 ###########################################################################
 set -e
 
-source bbndk.env
-
 BUILD_ROOT=`pwd`
 pushd ../..
 SRC_TOP=`pwd`
@@ -39,19 +37,18 @@ popd
 ###########################################################################
 
 # ensure required BBNDK env variables are set
-: ${BBNDK_DIR:?"Error: BBNDK_DIR environment variable is not set."}
-: ${BBNDK_HOST:?"Error: BBNDK_HOST environment variable is not set."}
-: ${BBNDK_TARGET:?"Error: BBNDK_TARGET environment variable is not set."}
+: ${QNX_HOST:?"Error: QNX_HOST environment variable is not set."}
+: ${QNX_TARGET:?"Error: QNX_TARGET environment variable is not set."}
 
 # Prepend path to curl-config and icu-config scripts (they are hand-edited for now)
-export PATH=$BUILD_ROOT/config:$BBNDK_HOST/usr/bin:$PATH
-export CC="$BBNDK_HOST/usr/bin/qcc -V4.4.2,gcc_ntoarmv7le_cpp "
+export PATH=$BUILD_ROOT/config:$QNX_HOST/usr/bin:$PATH
+export CC="$QNX_HOST/usr/bin/qcc -V4.4.2,gcc_ntoarmv7le_cpp "
 export CFLAGS="-V4.4.2,gcc_ntoarmv7le_cpp -g "
-export CPP="$BBNDK_HOST/usr/bin/qcc -V4.4.2,gcc_ntoarmv7le_cpp -E"
-export LDFLAGS="-L$BBNDK_TARGET/armle-v7/usr/lib -L$BBNDK_TARGET/armle-v7/lib"
-export CPPFLAGS="-D__QNXNTO__ -I$BBNDK_TARGET/usr/include"
-export LD="$BBNDK_HOST/usr/bin/ntoarmv7-ld "
-export RANLIB="$BBNDK_HOST/usr/bin/ntoarmv7-ranlib "
+export CPP="$QNX_HOST/usr/bin/qcc -V4.4.2,gcc_ntoarmv7le_cpp -E"
+export LDFLAGS="-L$QNX_TARGET/armle-v7/usr/lib -L$QNX_TARGET/armle-v7/lib"
+export CPPFLAGS="-D__QNXNTO__ -I$QNX_TARGET/usr/include"
+export LD="$QNX_HOST/usr/bin/ntoarmv7-ld "
+export RANLIB="$QNX_HOST/usr/bin/ntoarmv7-ranlib "
 
 ############################################################################
 # Build gettext                                                           #
@@ -70,7 +67,7 @@ popd
 ###########################################################################
 echo "==> Building getopt"
 pushd $SRC_TOP/GetOpt
-CPPFLAGS="$CPPFLAGS -D__QNXNTO__ -I$BBNDK_TARGET/usr/include -I$SRC_TOP/gettext/gettext-tools/intl" \
+CPPFLAGS="$CPPFLAGS -D__QNXNTO__ -I$QNX_TARGET/usr/include -I$SRC_TOP/gettext/gettext-tools/intl" \
 make
 popd
 
