@@ -71,17 +71,6 @@ CPPFLAGS="$CPPFLAGS -D__QNXNTO__ -I$QNX_TARGET/usr/include -I$SRC_TOP/gettext/ge
 make
 popd
 
-###########################################################################
-# Build gzip
-###########################################################################
-echo "==> Building gzip"
-pushd $SRC_TOP/gzip
-if [ ! -f ./Makefile ] ; then
-    ./configure --build=i686-pc-linux-gnu --host=arm-unknown-nto-qnx6.5.0eabi --prefix=$BUILD_ROOT/gzip
-fi
-make
-popd
-
 ############################################################################
 # Build CouchDB 1.1.0                                                      #   
 ############################################################################
@@ -144,21 +133,18 @@ echo "ERL_DIR=$ERL_DIR" >> install-vars.sh
 popd
 
 # Create installer
-TAR_FILE=$BUILD_ROOT/couchdb-installer.tar
-if [ -f $TAR_FILE ] ; then
-    rm $TAR_FILE
-fi
-if [ -f ${TAR_FILE}.gz ] ; then
-    rm ${TAR_FILE}.gz
+ZIP_FILE=$BUILD_ROOT/couchdb-installer.zip
+if [ -f $ZIP_FILE ] ; then
+    rm $ZIP_FILE
 fi
 pushd CouchDB/PlayBook-build
-tar cf $TAR_FILE install-vars.sh install.sh
+zip -q $ZIP_FILE install-vars.sh install.sh couchdb-env.sh
 popd
 pushd Erlang-OTP/PlayBook-build
-tar rf $TAR_FILE Erlang
+zip -qry $ZIP_FILE Erlang
 popd
 pushd CouchDB/PlayBook-build
-tar rf $TAR_FILE CouchDB
+zip -qry $ZIP_FILE CouchDB
 popd
 
 pushd $BUILD_ROOT
@@ -170,10 +156,23 @@ if [ ! -d bin ] ; then
 fi
 cp $SRC_TOP/SpiderMonkey/PlayBook-build/lib/* lib/
 cp $SRC_TOP/GetOpt/getopt bin/
-tar rf $TAR_FILE lib bin
-gzip $TAR_FILE 
+zip -qry $ZIP_FILE lib bin
 popd
 
-echo "CouchDB installer ${TAR_FILE}.gz created. Copy and untar to desired directory on the PlayBook and run install.sh"
+echo "############################################################################"
+echo "CouchDB installer ${ZIP_FILE} created."
+echo ""
+echo "Authenticate with your PlayBook using blackberry-connect."
+echo "Then scp the installer file to the PlayBook."
+echo "SSH to the PlayBook as devuser, unzip the installer and run install.sh."
+echo ""
+echo "For example:"
+echo "  scp -i <path to RSA-4096 private key> ${ZIP_FILE} devuser@169.254.0.1:"
+echo "  ssh devuser@169.254.0.1"
+echo "  mkdir couchdb-install"
+echo "  unzip ${ZIP_FILE}.gz -d couchdb-install"
+echo "  cd couchdb-install"
+echo "  ./install.sh"
+echo "############################################################################"
 
 popd
