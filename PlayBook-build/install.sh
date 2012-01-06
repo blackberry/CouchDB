@@ -5,8 +5,7 @@
 : ${ERL_DIR:?"Error: ERL_DIR variable is not set."}
 
 PREFIX=`pwd`
-INSTALL_PREFIX=$PREFIX
-ERLANG_DIR=$PREFIX/Erlang
+DEVUSER_DIR=/accounts/devuser
 
 fix_paths()
 {
@@ -15,13 +14,22 @@ fix_paths()
     FILE_NAME=`basename $1`
 
     cd $FILE_DIR
-    cat $FILE_NAME | sed -e "s|$BUILD_ROOT|$INSTALL_PREFIX|g" -e "s|$ERL_DIR/bootstrap|$ERLANG_DIR|g" > $FILE_NAME.tmp
+    cat $FILE_NAME | sed -e "s|$BUILD_ROOT|$PREFIX|g" -e "s|$ERL_DIR/bootstrap|$PREFIX/Erlang|g" > $FILE_NAME.tmp
     mv $FILE_NAME.tmp $FILE_NAME
     cd $CURDIR
 }
 
+# Create directories if needed
+if [ ! -d $DEVUSER_DIR/lib ] ; then
+    mkdir $DEVUSER_DIR/lib
+fi
+
+if [ ! -d $DEVUSER_DIR/bin ] ; then
+    mkdir $DEVUSER_DIR/bin
+fi
+
 # Set ownership
-chown -R root:nto bin lib CouchDB Erlang install.sh install-vars.sh
+chown -R devuser:devuser bin lib CouchDB Erlang install.sh install-vars.sh
 
 # Fix scripts
 cd $PREFIX/CouchDB
@@ -44,18 +52,13 @@ if [ -f bin/run_test ] ; then
 fi
 ./Install -minimal $PREFIX/Erlang
 
-mount -uw /base
-
 cd $PREFIX/lib
-cp libjs.so libmozjs.so /usr/lib
+cp libjs.so libmozjs.so $DEVUSER_DIR/lib
 
 cd $PREFIX/bin
-cp getopt /usr/bin
-
-# Clean up
-cd $PREFIX
-rm -rf lib bin
-rm install-vars.sh install.sh
+cp getopt $DEVUSER_DIR/bin
 
 # Ready to start CouchDB
+echo "Source couchdb-env.sh into your environment (e.g. . ./couchdb-env.sh)."
+echo "In CouchDB/etc/couchdb/default.ini, change bind_address to 169.254.0.1 so that you can connect to CouchDB with your desktop browser."
 echo "Start CouchDB in $PREFIX/CouchDB/bin by running \"./couchdb\"."
