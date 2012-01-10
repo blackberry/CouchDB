@@ -107,6 +107,7 @@ if [ ! -f ./Makefile ] ; then
     --with-js-lib=$SRC_TOP/SpiderMonkey/PlayBook-build/lib \
     --with-js-include=$BUILD_ROOT/include/SpiderMonkey/js
 fi
+
 make
 make install
 popd
@@ -133,7 +134,8 @@ echo "ERL_DIR=$ERL_DIR" >> install-vars.sh
 popd
 
 # Create installer
-ZIP_FILE=$BUILD_ROOT/couchdb-installer.zip
+ZIP_FILENAME=couchdb-installer.zip
+ZIP_FILE=$BUILD_ROOT/$ZIP_FILENAME
 if [ -f $ZIP_FILE ] ; then
     rm $ZIP_FILE
 fi
@@ -167,10 +169,11 @@ echo "Then scp the installer file to the PlayBook."
 echo "SSH to the PlayBook as devuser, unzip the installer and run install.sh."
 echo ""
 echo "For example:"
-echo "  scp -i <path to RSA-4096 private key> ${ZIP_FILE} devuser@169.254.0.1:"
+echo "  blackberry-connect 169.254.0.1 -password <password> -sshPublicKey ~/.ssh/id_rsa.pub"
+echo "  scp ${ZIP_FILENAME} devuser@169.254.0.1:"
 echo "  ssh devuser@169.254.0.1"
 echo "  mkdir couchdb-install"
-echo "  unzip ${ZIP_FILE}.gz -d couchdb-install"
+echo "  unzip ${ZIP_FILENAME} -d couchdb-install"
 echo "  cd couchdb-install"
 echo "  ./install.sh"
 echo "############################################################################"
