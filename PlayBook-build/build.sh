@@ -50,7 +50,7 @@ export CPPFLAGS="-D__QNXNTO__ -I$QNX_TARGET/usr/include"
 export LD="$QNX_HOST/usr/bin/ntoarmv7-ld "
 export RANLIB="$QNX_HOST/usr/bin/ntoarmv7-ranlib "
 
-############################################################################
+###########################################################################
 # Build gettext                                                           #
 ###########################################################################
 echo "==> Building gettext"
@@ -96,8 +96,8 @@ pushd $SRC_TOP/CouchDB
 if [ ! -f ./configure ] ; then
     ./bootstrap
 
-    # Use script modified for PlayBook 
-    cp configure.PlayBook configure
+    # Patch the configure script
+    patch -p0 < $BUILD_ROOT/configure.patch
 fi
 
 if [ ! -f ./Makefile ] ; then

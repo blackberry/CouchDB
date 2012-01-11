@@ -142,7 +142,8 @@ ICULIBS_COMMON_LIB_NAME_A="${LIBICU}${COMMON_STUBNAME}${ICULIBSUFFIX}.${A}"
 ICULIBS="${ICULIBS_BASE} ${ICULIBS_I18N} ${ICULIBS_COMMON} ${ICULIBS_DATA} "
 
 # Proper echo newline handling is needed in icu-config
-ECHO_N="-n"
+# The -n option doesn't work on the Mac
+#ECHO_N="-n"
 ECHO_C=""
 # Not currently being used but good to have for proper tab handling
 ECHO_T=""

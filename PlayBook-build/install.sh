@@ -9,14 +9,17 @@ DEVUSER_DIR=/accounts/devuser
 
 fix_paths()
 {
-    CURDIR=`pwd`
-    FILE_DIR=`dirname $1`
-    FILE_NAME=`basename $1`
+    FILE_PATH=$1
+    if [ -f $FILE_PATH ] ; then 
+        CURDIR=`pwd`
+        FILE_DIR=`dirname $FILE_PATH`
+        FILE_NAME=`basename $FILE_PATH`
 
-    cd $FILE_DIR
-    cat $FILE_NAME | sed -e "s|$BUILD_ROOT|$PREFIX|g" -e "s|$ERL_DIR/bootstrap|$PREFIX/Erlang|g" > $FILE_NAME.tmp
-    mv $FILE_NAME.tmp $FILE_NAME
-    cd $CURDIR
+        cd $FILE_DIR
+        cat $FILE_NAME | sed -e "s|$BUILD_ROOT|$PREFIX|g" -e "s|$ERL_DIR/bootstrap|$PREFIX/Erlang|g" > $FILE_NAME.tmp
+        mv $FILE_NAME.tmp $FILE_NAME
+        cd $CURDIR
+    fi
 }
 
 # Create directories if needed
