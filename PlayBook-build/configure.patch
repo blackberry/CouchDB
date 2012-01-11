@@ -1,0 +1,97 @@
+--- configure.orig	2012-01-11 11:11:51.000000000 -0500
++++ configure	2012-01-11 11:13:40.000000000 -0500
+@@ -12167,10 +12167,17 @@
+ 
+ 
+ 
+-
+-
+-LIB_FLAGS="$JS_LIB_FLAGS -L/usr/local/lib -L/opt/local/lib"
+-LIBS="$LIB_FLAGS $LIBS"
++# For PlayBook
++case $host_os in
++*nto* | *qnx*)
++  LIB_FLAGS="$JS_LIB_FLAGS"
++  LIBS="$LIB_FLAGS $LIBS"
++  ;;
++*)
++  LIB_FLAGS="$JS_LIB_FLAGS -L/usr/local/lib -L/opt/local/lib"
++  LIBS="$LIB_FLAGS $LIBS"
++  ;;
++esac
+ 
+ case "$(uname -s)" in
+   CYGWIN*)
+@@ -12592,7 +12599,7 @@
+     echo "*** in your path, and that taglib is properly installed."
+     echo "*** Or see http://ibm.com/software/globalization/icu/"
+   else
+-    ICU_VERSION=`$ICU_CONFIG --version`
++    ICU_VERSION=`$ICU_CONFIG --version | sed -e '/^$/d'`
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ICU >= 3.4.1" >&5
+ $as_echo_n "checking for ICU >= 3.4.1... " >&6; }
+         VERSION_CHECK=`expr $ICU_VERSION \>\= 3.4.1`
+@@ -12603,19 +12610,19 @@
+ 
+             { $as_echo "$as_me:${as_lineno-$LINENO}: checking ICU_CFLAGS" >&5
+ $as_echo_n "checking ICU_CFLAGS... " >&6; }
+-            ICU_CFLAGS=`$ICU_CONFIG --cflags`
++            ICU_CFLAGS=`$ICU_CONFIG --cflags | sed -e '/^$/d'`
+             { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ICU_CFLAGS" >&5
+ $as_echo "$ICU_CFLAGS" >&6; }
+ 
+             { $as_echo "$as_me:${as_lineno-$LINENO}: checking ICU_CXXFLAGS" >&5
+ $as_echo_n "checking ICU_CXXFLAGS... " >&6; }
+-            ICU_CXXFLAGS=`$ICU_CONFIG --cxxflags`
++            ICU_CXXFLAGS=`$ICU_CONFIG --cxxflags | sed -e '/^$/d'`
+             { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ICU_CXXFLAGS" >&5
+ $as_echo "$ICU_CXXFLAGS" >&6; }
+ 
+             { $as_echo "$as_me:${as_lineno-$LINENO}: checking ICU_LIBS" >&5
+ $as_echo_n "checking ICU_LIBS... " >&6; }
+-            ICU_LIBS=`$ICU_CONFIG --ldflags`
++            ICU_LIBS=`$ICU_CONFIG --ldflags | sed -e '/^$/d'`
+             { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ICU_LIBS" >&5
+ $as_echo "$ICU_LIBS" >&6; }
+         else
+@@ -12762,9 +12769,18 @@
+ 
+ case "$(uname -s)" in
+   Linux)
++    # For PlayBook
++    case $host_os in
++      *nto* | *qnx*)
++        LIBS="$LIBS -lcrypto"
++        CPPFLAGS="$CPPFLAGS"
++        ;;
++      *)
+     LIBS="$LIBS -lcrypt"
+     CPPFLAGS="-D_XOPEN_SOURCE $CPPFLAGS"
+     ;;
++    esac
++    ;;
+   FreeBSD)
+     LIBS="$LIBS -lcrypt"
+     ;;
+@@ -12836,11 +12852,18 @@
+     fi
+ fi
+ 
+-has_crypto=`${ERL} -eval "case application:load(crypto) of ok -> ok; _ -> exit(no_crypto) end." -noshell -s init stop`
++# Skip check when cross-compiling for QNX, since the Erlang bootstrap isn't built with SSL support
++case $host_os in
++*nto* | *qnx*)
++  ;;
++*)
++  has_crypto=`${ERL} -eval "case application:load(crypto) of ok -> ok; _ -> exit(no_crypto) end." -noshell -s init stop`
+ 
+-if test -n "$has_crypto"; then
++  if test -n "$has_crypto"; then
+     as_fn_error $? "Could not find the Erlang crypto library. Has Erlang been compiled with OpenSSL support?" "$LINENO" 5
+-fi
++  fi
++  ;;
++esac
+ 
+ # Extract the first word of "erlc", so it can be a program name with args.
+ set dummy erlc; ac_word=$2
